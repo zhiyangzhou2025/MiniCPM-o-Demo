@@ -1,78 +1,52 @@
-# MiniCPM-o 多 worker 单 gateway 部署(docker compose)
+# Omni Demo 远程推理部署 (docker compose)
 #
-# 架构:
-#   gateway        ×1   :8006   torch-free 控制面;/v1/realtime 入口 + 调度 + 录制
-#   worker-backend ×N   每个独占 1 张 GPU;容器内 backend(:22500)+ worker(:22400,纯转发)
+# 参考示例：单 endpoint、2 并发席位 + gateway。
+# 多 endpoint / 灵活并发数部署请使用 start.sh。
 #
-# 拓扑要点:
-#   - 每个 worker-backend 显式绑定一张特定 GPU(device_ids),不能用 --scale(会抢同一张卡)。
-#   - 容器内 GPU 永远是 0(GPU_ID=0):reservation 决定它看到宿主机哪张卡,容器内就叫 cuda:0。
-#   - gateway 用 compose 内部 DNS 静态寻址 worker(worker-backend-0:22400,...),无需服务发现。
-#   - worker-backend 挂模型(只读)、不挂 data(纯净);gateway 挂 data(录制持久化)、不要 GPU。
-#   - 模型权重不进镜像,运行时挂载;路径由 MODEL_HOST_PATH 指定。
+# 架构：
+#   gateway  x1   :8006   torch-free 控制面（/v1/realtime 入口 + 调度 + 录制）
+#   worker   xN   纯转发，每个容器 = 1 并发席位，指向外部推理服务
 #
-# 增减 GPU = 增删 worker-backend-N service 并同步 gateway 的 --workers 列表。
+# 增减并发 = 增删 worker-N service 并同步 gateway 的 --workers 列表。
 #
-# 用法:
-#   MODEL_HOST_PATH=/root/xubokai/MiniCPM-o-4_5 docker compose up -d --build
+# 用法：
+#   BACKEND_SERVER_URL=http://host:18900 docker compose up -d --build
 #   docker compose logs -f gateway
-#   docker compose logs -f worker-backend-0
 
-x-worker-backend: &worker-backend-base
+x-worker: &worker-base
   build:
     context: .
-    dockerfile: docker/Dockerfile.worker-backend
-  image: minicpm-wb:dev
+    dockerfile: docker/Dockerfile.worker
+  image: omni-demo-worker:dev
   environment:
-    GPU_ID: "0"            # 容器内恒为 0(见上)
-    BACKEND_PORT: "22500"
+    BACKEND_SERVER_URL: ${BACKEND_SERVER_URL:?set BACKEND_SERVER_URL}
     WORKER_PORT: "22400"
-    MODEL_PATH: /models/MiniCPM-o-4_5
   restart: unless-stopped
   healthcheck:
-    # 查 worker /health;转发模式下 backend 是否就绪由 entrypoint 门控保证
     test: ["CMD", "curl", "-sf", "http://127.0.0.1:22400/health"]
-    interval: 15s
-    timeout: 5s
-    retries: 40          # 模型加载 ~90s,给足重试(40×15s=10min)
-    start_period: 120s
+    interval: 10s
+    timeout: 3s
+    retries: 5
+    start_period: 10s
   logging:
     driver: json-file
-    options: {max-size: "50m", max-file: "3"}
+    options: {max-size: "20m", max-file: "3"}
 
 services:
-  worker-backend-0:
-    <<: *worker-backend-base
-    container_name: minicpm-wb-0
-    volumes:
-      - ${MODEL_HOST_PATH:?set MODEL_HOST_PATH to the host model dir}:/models/MiniCPM-o-4_5:ro
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ["0"]
-              capabilities: [gpu]
+  worker-0:
+    <<: *worker-base
+    container_name: omni-worker-0
 
-  worker-backend-1:
-    <<: *worker-backend-base
-    container_name: minicpm-wb-1
-    volumes:
-      - ${MODEL_HOST_PATH:?set MODEL_HOST_PATH to the host model dir}:/models/MiniCPM-o-4_5:ro
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ["1"]
-              capabilities: [gpu]
+  worker-1:
+    <<: *worker-base
+    container_name: omni-worker-1
 
   gateway:
     build:
       context: .
       dockerfile: docker/Dockerfile.gateway
-    image: minicpm-gateway:dev
-    container_name: minicpm-gateway
+    image: omni-demo-gateway:dev
+    container_name: omni-gateway
     # HTTPS:实时音视频页面(omni/audio_duplex)需要 https —— 浏览器仅在 https/localhost
     # 下提供 navigator.mediaDevices(麦克风)。证书从宿主机挂载(不进镜像),默认读 certs/cert.pem。
     # 纯文字 /turnbased 不需要麦克风,http 也能用;要降级 http 把下面 --https 段换成 ["--http"]。
@@ -87,16 +61,16 @@ services:
       - "--ssl-keyfile"
       - "/app/certs/key.pem"
       - "--workers"
-      - "worker-backend-0:22400,worker-backend-1:22400"
+      - "worker-0:22400,worker-1:22400"
     ports:
-      - "8006:8006"
+      - "${GATEWAY_HOST_PORT:-8006}:8006"
     volumes:
       - ${DATA_HOST_PATH:-./data}:/app/data      # session 录制持久化到 host
       - ${CERTS_HOST_PATH:-./certs}:/app/certs:ro # TLS 证书从宿主机挂载(只读),不进镜像
     depends_on:
-      worker-backend-0:
+      worker-0:
         condition: service_healthy
-      worker-backend-1:
+      worker-1:
         condition: service_healthy
     restart: unless-stopped
     logging:
