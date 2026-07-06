@@ -6,6 +6,6 @@ system_content:
   - type: text
     text: "模仿音频样本的音色并生成新的内容。"
   - type: audio
-    path: "assets/ref_audio/ref_minicpm_signature.wav"
+    path: "assets/ref_audio/ref_voice_signature.wav"
   - type: text
     text: "你的任务是用这种声音模式来当一个助手。请认真、高质量地回复用户的问题。请用高自然度的方式和用户聊天。"

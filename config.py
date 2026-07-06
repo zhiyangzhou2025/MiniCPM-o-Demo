@@ -70,7 +70,7 @@ class AudioConfig(BaseModel):
     """音频相关配置"""
 
     ref_audio_path: Optional[str] = Field(
-        default="assets/ref_audio/ref_minicpm_signature.wav",
+        default="assets/ref_audio/ref_voice_signature.wav",
         description="默认参考音频路径（TTS 声音克隆，相对于 minicpmo45_service/）",
     )
     playback_delay_ms: int = Field(
