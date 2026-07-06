@@ -17,7 +17,7 @@ import { t } from '/static/shared/i18n-module.js';
 const _NAV_SELECTOR = '.nav-links';
 
 // Apps to hide from the global nav (still reachable by direct route).
-const _NAV_HIDDEN_APP_IDS = new Set(['half_duplex_audio']);
+const _NAV_HIDDEN_APP_IDS = new Set([]);
 
 // Map API app_id → i18n key for display name override.
 const _APP_NAME_I18N = {

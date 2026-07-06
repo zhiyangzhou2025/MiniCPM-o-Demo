@@ -6,7 +6,7 @@
  *   initFaqSidebar('turnbased');   // loads /static/faq/{lang}/turnbased.md
  */
 
-const STORAGE_KEY_LANG = 'minicpmo_lang';
+const STORAGE_KEY_LANG = 'omni_demo_lang';
 
 /* ── lightweight markdown → HTML ── */
 function md2html(src) {
