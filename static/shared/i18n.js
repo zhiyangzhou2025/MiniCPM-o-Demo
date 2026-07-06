@@ -20,12 +20,12 @@ const STORAGE_KEY = 'omni_demo_lang';
 
 const zh = {
   // nav / home
-  home: 'Home',
+  home: '首页',
   chooseMode: '选择模式',
   recentSessions: '最近会话（仅你可见）',
   clearRecent: '清除',
   enter: '进入 →',
-  mobile: 'Mobile',
+  mobile: '移动端',
   mobileName: '移动端',
   mobileDesc: 'React + Vite 移动端交互界面，支持单工和全双工。',
   turnbasedDesc: '多轮对话：文本和音频输入，流式输出。适合问答、编辑和多轮任务。',

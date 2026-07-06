@@ -547,7 +547,7 @@ class MiniCPMO(MiniCPMOPreTrainedModel):
             warmup_video_path: MP4 video for warmup.  Defaults to
                 ``assets/samples/compile.mp4``.
             ref_audio_path: Reference audio for TTS voice cloning.  Defaults to
-                ``assets/ref_audio/ref_minicpm_signature.wav``.
+                ``assets/ref_audio/ref_voice_signature.wav``.
             max_warmup_chunks: Maximum number of 1-second chunks to process.
         """
         if not getattr(self, "_compiled", False):
@@ -569,7 +569,7 @@ class MiniCPMO(MiniCPMOPreTrainedModel):
             )
         if ref_audio_path is None:
             ref_audio_path = os.path.join(
-                project_root, "assets", "ref_audio", "ref_minicpm_signature.wav"
+                project_root, "assets", "ref_audio", "ref_voice_signature.wav"
             )
 
         if not os.path.isfile(warmup_video_path):
@@ -823,7 +823,7 @@ class MiniCPMO(MiniCPMOPreTrainedModel):
         if ref_audio_path is None:
             project_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
             ref_audio_path = os.path.join(
-                project_root, "assets", "ref_audio", "ref_minicpm_signature.wav"
+                project_root, "assets", "ref_audio", "ref_voice_signature.wav"
             )
         if not os.path.isfile(ref_audio_path):
             logger.warning("[bench] ref audio not found: %s", ref_audio_path)

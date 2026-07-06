@@ -5,7 +5,7 @@
         "attn_implementation": "auto"
     },
     "audio": {
-        "ref_audio_path": "assets/ref_audio/ref_minicpm_signature.wav",
+        "ref_audio_path": "assets/ref_audio/ref_voice_signature.wav",
         "playback_delay_ms": 200,
         "chat_vocoder": "token2wav"
     },
