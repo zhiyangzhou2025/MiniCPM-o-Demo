@@ -317,26 +317,18 @@
         <section class="resource-section" aria-labelledby="resource-heading">
             <div class="resource-title" id="resource-heading">Resources</div>
             <div class="resource-buttons">
-                <a class="resource-btn" href="https://github.com/OpenBMB/MiniCPM-o" target="_blank" rel="noopener">
-                    <span class="platform-icon" aria-hidden="true">📦</span><span id="resource-model">Model Repo</span>
+                <a class="resource-btn" href="https://github.com/zhiyangzhou2025/vLLM-Omni-Demo" target="_blank" rel="noopener">
+                    <span class="platform-icon" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3"/>
+                        </svg>
+                    </span><span id="resource-demo">Demo Repo</span>
                 </a>
-                <a class="resource-btn" href="https://github.com/OpenBMB/MiniCPM-o-Demo" target="_blank" rel="noopener">
-                    <span class="platform-icon" aria-hidden="true">💻</span><span id="resource-demo">Demo Repo</span>
-                </a>
-                <a class="resource-btn" href="/docs/">
+                <a class="resource-btn" id="resource-docs-link" href="/docs/zh/">
                     <span class="platform-icon" aria-hidden="true">📘</span><span id="resource-docs">Docs</span>
                 </a>
-                <a class="resource-btn" href="/docs/zh/realtime-api/overview/">
+                <a class="resource-btn" id="resource-api-link" href="/docs/zh/realtime-api/overview/">
                     <span class="platform-icon" aria-hidden="true">⚡</span><span id="resource-api">API Docs</span>
-                </a>
-                <a class="resource-btn" href="https://huggingface.co/openbmb/MiniCPM-o-4_5" target="_blank" rel="noopener">
-                    <span class="platform-icon" aria-hidden="true">🤗</span><span id="resource-model-hf">HF Model</span>
-                </a>
-                <a class="resource-btn" href="https://huggingface.co/papers/2604.27393" target="_blank" rel="noopener">
-                    <span class="platform-icon" aria-hidden="true">📄</span><span id="resource-paper">Paper</span>
-                </a>
-                <a class="resource-btn" href="https://github.com/tc-mb/llama.cpp-omni/releases/" target="_blank" rel="noopener">
-                    <span class="platform-icon" aria-hidden="true">🖥️</span><span id="resource-comni">llama.cpp Desktop</span>
                 </a>
             </div>
         </section>
@@ -463,13 +455,13 @@
     document.getElementById('recent-title').textContent = t.recentSessions;
     document.getElementById('recent-clear-btn').textContent = t.clearRecent;
     document.getElementById('resource-heading').textContent = t.resources;
-    document.getElementById('resource-model').textContent = t.modelRepo;
     document.getElementById('resource-demo').textContent = t.demoRepo;
     document.getElementById('resource-docs').textContent = t.docs;
     document.getElementById('resource-api').textContent = t.apiDocs;
-    document.getElementById('resource-model-hf').textContent = t.hfModel;
-    document.getElementById('resource-paper').textContent = t.techReport;
-    document.getElementById('resource-comni').textContent = t.comniApp;
+
+    const currentLang = window.I18n.getLang();
+    document.getElementById('resource-docs-link').href = `/docs/${currentLang}/`;
+    document.getElementById('resource-api-link').href = `/docs/${currentLang}/realtime-api/overview/`;
 
     // Language toggle in header (FAQ-style)
     const _hlEl = document.getElementById('headerLang');
