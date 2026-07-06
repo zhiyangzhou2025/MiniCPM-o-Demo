@@ -1,7 +1,7 @@
 # Omni Demo 远程推理部署 (docker compose)
 #
 # 参考示例：单 endpoint、2 并发席位 + gateway。
-# 多 endpoint / 灵活并发数部署请使用 start.sh。
+# 多 endpoint / 灵活并发数部署请使用 start_all.sh。
 #
 # 架构：
 #   gateway  x1   :8006   torch-free 控制面（/v1/realtime 入口 + 调度 + 录制）
