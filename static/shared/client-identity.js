@@ -6,7 +6,7 @@
  * while the user stays on one page.
  */
 (function () {
-    const CLIENT_KEY = 'minicpmo_client_id';
+    const CLIENT_KEY = 'omni_demo_client_id';
 
     function randomId(prefix) {
         const rand = (typeof crypto !== 'undefined' && crypto.randomUUID)

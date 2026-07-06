@@ -18,10 +18,10 @@
  *   POST /api/sessions/{id}/upload-recording  (FormData: file)
  *   POST /api/sessions/{id}/comment           (JSON:    {comment: string})
  *   GET  /api/sessions/{id}/comment           → {comment: string}
- *   localStorage["minicpmo45_recent_sessions"]: [{id, appType, savedAt}, ...]  (最多 20 条)
+ *   localStorage["omni_recent_sessions"]: [{id, appType, savedAt}, ...]  (最多 20 条)
  */
 
-const RECENT_SESSIONS_KEY = 'minicpmo45_recent_sessions';
+const RECENT_SESSIONS_KEY = 'omni_recent_sessions';
 const MAX_RECENT = 20;
 
 function _ssT(key, fallback) {

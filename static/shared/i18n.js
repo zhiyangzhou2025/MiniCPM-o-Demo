@@ -3,7 +3,7 @@
  *
  * Language detection priority:
  *   1. URL search param  ?lang=zh  /  ?lang=en
- *   2. localStorage('minicpmo_lang')
+ *   2. localStorage('omni_demo_lang')
  *   3. navigator.language
  *   4. fallback → 'zh'
  *
@@ -14,7 +14,7 @@
  *   setLang('en', false);        // hot-switch, no reload
  */
 
-const STORAGE_KEY = 'minicpmo_lang';
+const STORAGE_KEY = 'omni_demo_lang';
 
 // ─── Translations ──────────────────────────────────────────────────────
 
