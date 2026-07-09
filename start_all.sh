@@ -17,6 +17,9 @@
 #   GATEWAY_PORT        gateway 端口（默认 8006）
 #   WORKER_BASE_PORT    worker 起始端口（默认 22400）
 #   PROTO               --http 或 --https（默认 --http）
+#
+# 停止：
+#   kill $(cat tmp/*.pid 2>/dev/null) 2>/dev/null
 
 set -euo pipefail
 
@@ -39,19 +42,7 @@ if [ -z "$ENDPOINTS" ] && [ -z "$BACKEND_SERVER_URL" ]; then
 fi
 
 cd "$(dirname "$0")"
-
-pids=()
-
-cleanup() {
-    echo ""
-    echo "[start_all.sh] shutting down..."
-    for pid in "${pids[@]}"; do
-        kill "$pid" 2>/dev/null || true
-    done
-    wait 2>/dev/null || true
-    exit 0
-}
-trap cleanup SIGTERM SIGINT
+mkdir -p tmp
 
 # ---- 解析 endpoints ----
 # 格式：每项 "url:concurrency"，存入两个数组
@@ -85,13 +76,14 @@ for ep_i in "${!ep_urls[@]}"; do
     count="${ep_counts[$ep_i]}"
     for j in $(seq 1 "$count"); do
         port=$((WORKER_BASE_PORT + worker_idx))
-        echo "[start_all.sh] worker $worker_idx  port=$port -> $url"
-        python worker.py \
+        echo "[start_all.sh] worker $worker_idx  port=$port -> $url  log=tmp/worker_${worker_idx}.log"
+        nohup python worker.py \
             --host 0.0.0.0 \
             --port "$port" \
             --worker-index "$worker_idx" \
-            --backend-server-url "$url" &
-        pids+=($!)
+            --backend-server-url "$url" \
+            > "tmp/worker_${worker_idx}.log" 2>&1 &
+        echo $! > "tmp/worker_${worker_idx}.pid"
 
         if [ -z "$worker_addrs" ]; then
             worker_addrs="localhost:$port"
@@ -106,12 +98,13 @@ total_workers=$worker_idx
 sleep 2
 
 # ---- 启动 gateway ----
-echo "[start_all.sh] gateway port=$GATEWAY_PORT  workers=$worker_addrs"
-python gateway.py \
+echo "[start_all.sh] gateway port=$GATEWAY_PORT  workers=$worker_addrs  log=tmp/gateway.log"
+nohup python gateway.py \
     --port "$GATEWAY_PORT" \
     --workers "$worker_addrs" \
-    "$PROTO" &
-pids+=($!)
+    "$PROTO" \
+    > "tmp/gateway.log" 2>&1 &
+echo $! > "tmp/gateway.pid"
 
 echo ""
 echo "=================================================="
@@ -121,17 +114,9 @@ echo "  Workers:  $total_workers total"
 for ep_i in "${!ep_urls[@]}"; do
     echo "    ${ep_urls[$ep_i]}  x${ep_counts[$ep_i]}"
 done
-echo "  Stop:     Ctrl+C"
+echo "  Logs:"
+echo "    Gateway:  tmp/gateway.log"
+echo "    Workers:  tmp/worker_*.log"
+echo "  Stop:"
+echo "    kill \$(cat tmp/*.pid 2>/dev/null) 2>/dev/null"
 echo "=================================================="
-echo ""
-
-# 守护：任一进程退出则全部关闭
-while true; do
-    for pid in "${pids[@]}"; do
-        if ! kill -0 "$pid" 2>/dev/null; then
-            echo "[start_all.sh] process $pid exited, shutting down" >&2
-            cleanup
-        fi
-    done
-    sleep 3
-done
